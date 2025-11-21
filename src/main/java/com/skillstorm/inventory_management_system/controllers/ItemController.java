@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.skillstorm.inventory_management_system.exceptions.ItemNotFoundException;
+import com.skillstorm.inventory_management_system.exceptions.WarehouseNotFoundException;
 import com.skillstorm.inventory_management_system.models.Item;
 import com.skillstorm.inventory_management_system.models.Warehouse;
 import com.skillstorm.inventory_management_system.services.ItemService;
@@ -65,8 +66,8 @@ public class ItemController {
         }
     }
 
-    @GetMapping("/warehouseForItem")
-    public ResponseEntity<List<Warehouse>> getMethodName(@PathVariable long id) {
+    @GetMapping("/warehousesForItem/{id}")
+    public ResponseEntity<List<Warehouse>> getWarehousesForItem(@PathVariable long id) {
         try {
             return new ResponseEntity<List<Warehouse>>(itemService.getAllWarehouseItemIsPresent(id), HttpStatus.OK);
         }catch (ItemNotFoundException infe) {
@@ -87,6 +88,19 @@ public class ItemController {
         }catch (Exception e) {
             return ResponseEntity.internalServerError().header("message", e.getMessage()).build();
         }  
+    }
+
+    @PutMapping("/addItemToAnWarehouse/{itemId}/{warehouseId}")
+    public ResponseEntity<Item> addItemToWarehouse(@PathVariable long itemId, @PathVariable long warehouseId) {
+        try {
+            return new ResponseEntity<Item>(itemService.addItemToWarehouse(itemId, warehouseId), HttpStatus.OK);
+        }catch (ItemNotFoundException infe) {
+            return ResponseEntity.notFound().header("message", "Couldn't find the resource").build();
+        }catch (WarehouseNotFoundException wnfe) {
+            return ResponseEntity.notFound().header("message", "Couldn't find the resource").build();
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().header("message", e.getMessage()).build();
+        }
     }
 
     @DeleteMapping("/delete/{id}")

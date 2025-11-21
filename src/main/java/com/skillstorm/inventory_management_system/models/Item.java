@@ -47,14 +47,6 @@ public class Item {
 
     public Item() {}
 
-    public Item(String itemName, String sku, String description, int quantity, String storage_location) {
-        this.itemName = itemName;
-        this.sku = sku;
-        this.description = description;
-        this.quantity = quantity;
-        this.storage_location = storage_location;
-    }
-
     public Item(String itemName, String sku, String description, int quantity, String storage_location,
             List<Warehouse> warehouses) {
         this.itemName = itemName;

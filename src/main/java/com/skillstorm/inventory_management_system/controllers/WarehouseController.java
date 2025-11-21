@@ -3,6 +3,8 @@ package com.skillstorm.inventory_management_system.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.skillstorm.inventory_management_system.exceptions.ItemAlreadyInWarehouseException;
+import com.skillstorm.inventory_management_system.exceptions.ItemNotFoundException;
 import com.skillstorm.inventory_management_system.exceptions.WarehouseNotFoundException;
 import com.skillstorm.inventory_management_system.models.Item;
 import com.skillstorm.inventory_management_system.models.Warehouse;
@@ -51,6 +53,19 @@ public class WarehouseController {
         }
     }
 
+    @PostMapping("/addItemToWarehouse/{id}")
+    public ResponseEntity<Warehouse> addItemToWarehouse(@PathVariable long id, @RequestBody Item item) {
+        try {
+            return new ResponseEntity<Warehouse>(warehouseService.addItemToWarehouse(id, item), HttpStatus.OK);
+        }catch (WarehouseNotFoundException wnfe) {
+            return ResponseEntity.notFound().header("message", "Couldn't find the resource").build();
+        }catch (ItemNotFoundException infe) {
+            return ResponseEntity.notFound().header("message", "Couldn't find the resource").build();
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().header("message", e.getMessage()).build();
+        }
+    }
+
     @GetMapping("/warehouse/{id}")
     public ResponseEntity<Warehouse> getWarehouseById(@PathVariable long id) {
         try {
@@ -81,8 +96,33 @@ public class WarehouseController {
             return ResponseEntity.notFound().header("message", wnfe.getMessage()).build();
         }catch (Exception e) {
             return ResponseEntity.internalServerError().header("message", e.getMessage()).build();
+        }   
+    }
+
+    @PutMapping("/deleteItemInWarehouse/{warehouseId}/{itemId}")
+    public ResponseEntity<Warehouse> deleteItemByWarehouse(@PathVariable long warehouseId, @PathVariable long itemId) {
+        try {
+            return new ResponseEntity<Warehouse>(warehouseService.deleteItemByWarehouse(warehouseId, itemId), HttpStatus.OK);
+        }catch (WarehouseNotFoundException wnfe) {
+            return ResponseEntity.notFound().header("message", wnfe.getMessage()).build();
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().header("message", e.getMessage()).build();
         }
-        
+    }
+
+    @PutMapping("/transferItemFromWarehouseToWarehouse/{presentWarehouseId}/{itemId}/{newWarehouseId}")
+    public ResponseEntity<Warehouse> transferItem(@PathVariable long presentWarehouseId, @PathVariable long itemId, @PathVariable long newWarehouseId) {
+        try {
+            return new ResponseEntity<Warehouse>(warehouseService.transferItem(presentWarehouseId, itemId, newWarehouseId), HttpStatus.OK);
+        }catch (WarehouseNotFoundException wnfe) {
+            return ResponseEntity.notFound().header("message", "Couldn't find the resource").build();
+        }catch (ItemNotFoundException infe) {
+            return ResponseEntity.notFound().header("message", "Couldn't find the resource").build();
+        }catch (ItemAlreadyInWarehouseException iaiwe) {
+            return ResponseEntity.badRequest().header("message", "Item already exist in warehouse").build();
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().header("message", e.getMessage()).build();
+        }
     }
 
     @DeleteMapping("/delete/{id}")
